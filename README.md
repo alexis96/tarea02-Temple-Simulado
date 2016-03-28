@@ -1,7 +1,6 @@
 Tarea 2: Algoritmos de búsquedas directas
 =========================================
 
-**Fecha de entrega: 6 de marzo de 2015.**
 
 Descripción
 ------------
