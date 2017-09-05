@@ -1,21 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 """
 tarea_2.py
 ------------
 
 Tarea 2a: Dibujar un grafo utilizando métodos de optimización
 
-Si bien estos métodos no son los que se utilizan en el dibujo de gráfos por computadora (son
-algoritmos realmente muy complejos lo que se usan actualmente). Si da una idea de la utilidad de
-los métodos de optimización en un problema divertido.
+Si bien estos métodos no son los que se utilizan en el dibujo de
+gráfos por computadora (son algoritmos realmente muy complejos lo que
+se usan actualmente). Si da una idea de la utilidad de los métodos de
+optimización en un problema divertido.
 
-Obviamente el problema se encuentra muy simplificado para poder ser visto dentro de una práctica.
+Obviamente el problema se encuentra muy simplificado para poder ser
+visto dentro de una práctica.
 
-Para realizar este problema es ecesario contar con el módulo PIL (Python Image Library) instalada.
-Si instalaste EPD o EPD free, no hay problema, PIL viene ya incluido. Si no, hay que instalarlo.
+Para realizar este problema es ecesario contar con el módulo PIL
+(Python Image Library) instalada.  Si instalaste EPD o EPD free, no
+hay problema, PIL viene ya incluido. Si no, hay que instalarlo.
 
-Para que funcione, este modulo debe de encontrarse en la misma carpeta que blocales.py (incluida en piazza)
+Para que funcione, este modulo debe de encontrarse en la misma carpeta
+que blocales.py (incluida en piazza)
 
 """
 
@@ -33,21 +38,26 @@ import time
 class problema_grafica_grafo(blocales.Problema):
 
     """
-    Clase para un grafo simple no dirigido, únicamente para fines de graficación
+    Clase para un grafo simple no dirigido, únicamente para fines de
+    graficación
 
     """
 
     def __init__(self, vertices, aristas, dimension_imagen=400):
         """
-        Un grafo se define como un conjunto de vertices, en forma de lista (no conjunto, el orden es importante
-        a la hora de graficar), y un conjunto (tambien en forma de lista) de pares ordenados de vertices, lo que
-        forman las aristas.
+        Un grafo se define como un conjunto de vertices, en forma de
+        lista (no conjunto, el orden es importante a la hora de
+        graficar), y un conjunto (tambien en forma de lista) de pares
+        ordenados de vertices, lo que forman las aristas.
 
-        Igualmente es importante indicar la resolución de la imagen a mostrar (por default de 400x400 pixeles).
+        Igualmente es importante indicar la resolución de la imagen a
+        mostrar (por default de 400x400 pixeles).
 
         @param vertices: Lista con el nombre de los vertices.
-        @param aristas: Lista con pares de vertices, los cuales definen las aristas.
-        @param dimension_imagen: Entero con la dimension de la imagen en pixeles (cuadrada por facilidad).
+        @param aristas: Lista con pares de vertices, los cuales
+                        definen las aristas.
+        @param dimension_imagen: Entero con la dimension de la imagen
+                                 en pixeles (cuadrada por facilidad).
 
         """
         self.vertices = vertices
@@ -58,15 +68,17 @@ class problema_grafica_grafo(blocales.Problema):
         """
         Devuelve un estado aleatorio.
 
-        Un estado para este problema de define como s = [s(1), s(2), ..., s(2*len(vertices))] en donde:
+        Un estado para este problema de define como s = [s(1), s(2),
+        ..., s(2*len(vertices))] en donde s(i) \in {10, 11, ..., 390}
+        es la posición en x del nodo i/2 si i es par, o la posicion en y
+        del nodo (i-1)/2 si i es non y(osease las parejas (x,y)).
 
-        s(i) \in {10, 11, ..., 390} es la posición en x del nodo i/2 si i es par, o la posicion en y del
-        nodo (i-1)/2 si i es non (osease las parejas (x,y)).
-
-        @return: Una tupla con las posiciones (x1, y1, x2, y2, ...) de cada vertice en la imagen.
+        @return: Una tupla con las posiciones (x1, y1, x2, y2, ...) de
+                 cada vertice en la imagen.
 
         """
-        return tuple(random.randint(10, self.dim - 10) for _ in range(2 * len(self.vertices)))
+        return tuple(random.randint(10, self.dim - 10) for _ in
+                     range(2 * len(self.vertices)))
 
     def vecino_aleatorio(self, estado, dispersion=None):
         """

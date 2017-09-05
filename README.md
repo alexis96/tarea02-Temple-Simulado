@@ -5,6 +5,9 @@ Tarea 2: Algoritmos de búsquedas directas
 Descripción
 ------------
 
+Esta tarea tiene como objetivo el entrenamiento para establecer con claridad una función
+de costo que 
+
 En esta tarea se va a realizar el ajuste de un problema relativamente complejo para 
 poder ser esuelto por medio del algoritmo de temple simulado. El problema no es tan complicado pero
 requiere de un análisis con calma del código ya presentado.
