@@ -10,15 +10,16 @@ Algoritmos generales para búsquedas locales
 
 __author__ = 'juliowaissman'
 
-
+from itertools import takewhile
 from math import exp
+from math import log2
 from random import random
 
 
 class Problema(object):
     """
-    Definición formal de un problema de búsqueda local. Es necesario adaptarla a
-    cada problema en específico, en particular:
+    Definición formal de un problema de búsqueda local. Es necesario
+    adaptarla a cada problema en específico, en particular:
 
     a) Todos los métodos requieren de implementar costo y estado_aleatorio
 
@@ -32,7 +33,7 @@ class Problema(object):
         @return Una tupla que describe un estado
 
         """
-        raise NotImplementedError("¡Este metodo debe ser implementado por la subclase!")
+        raise NotImplementedError("Este metodo debe ser implementado")
 
     def vecinos(self, estado):
         """
@@ -40,21 +41,22 @@ class Problema(object):
 
         @param estado: Una tupla que describe un estado
 
-        @return: Un generador de estados vecinos (utilizar yield en lugar de return)
+        @return: Un generador de estados vecinos
 
         """
-        raise NotImplementedError("¡Este metodo debe ser implementado por la subclase!")
+        raise NotImplementedError("Este metodo debe ser implementado")
 
     def vecino_aleatorio(self, estado):
         """
-        Genera un vecino de un estado en forma aleatoria. Procurar generar el estado  vecino
-        a partir de una distribución uniforme de ser posible.
+        Genera un vecino de un estado en forma aleatoria.
+        Procurar generar el estado  vecino a partir de una
+        distribución uniforme de ser posible.
 
         @param estado: Una tupla que describe un estado
 
         @return: Una tupla con un estado vecino.
         """
-        raise NotImplementedError("¡Este metodo debe ser implementado por la subclase!")
+        raise NotImplementedError("Este metodo debe ser implementado")
 
     def costo(self, estado):
         """
@@ -65,14 +67,14 @@ class Problema(object):
         @return: Un valor numérico, mientras más pequeño, mejor es el estado.
 
         """
-        raise NotImplementedError("¡Este metodo debe ser implementado por la subclase!")
+        raise NotImplementedError("Este metodo debe ser implementado")
 
 
-def descenso_colinas(problema, maxit=1000000):
+def descenso_colinas(problema, maxit=1e6):
     """
     Busqueda local por descenso de colinas.
 
-    @param problema: Un objeto de una clase heredada de blocales.Problema
+    @param problema: Un objeto de una clase heredada de Problema
     @param maxit: Máximo número de iteraciones
 
     @return: El estado con el menor costo encontrado
@@ -81,7 +83,7 @@ def descenso_colinas(problema, maxit=1000000):
     estado = problema.estado_aleatorio()
     costo = problema.costo(estado)
 
-    for _ in xrange(maxit):
+    for _ in range(int(maxit)):
         e = min(problema.vecinos(estado), key=problema.costo)
         c = problema.costo(e)
         if c >= costo:
@@ -90,53 +92,33 @@ def descenso_colinas(problema, maxit=1000000):
     return estado
 
 
-def temple_simulado(problema, calendarizador=lambda i: cal_expon(i, 100, 0.01), maxit=1000000):
+def temple_simulado(problema, calendarizador=None, tol=0.001):
     """
     Busqueda local por temple simulado
 
-    @param problema: Un objeto de una clase heredada de blocales.Problema
-    @param calendarizador: Una función que recibe la iteración y devuelve la temperatura
-    @param maxit: Máximo número de iteraciones
+    @param problema: Un objeto de la clase `Problema`.
+    @param calendarizador: Un generador de temperatura (simulación).
+    @param tol: Temperatura mínima considerada diferente a cero.
 
     @return: El estado con el menor costo encontrado
 
     """
+    if calendarizador is None:
+        costos = [problema.costo(problema.estado_aleatorio())
+                  for _ in range(10 * len(problema.estado_aleatorio()))]
+        minimo,  maximo = min(costos), max(costos)
+        T_ini = 2 * (maximo - minimo)
+        calendarizador = (T_ini/(1 + i) for i in range(int(1e10)))
 
     estado = problema.estado_aleatorio()
     costo = problema.costo(estado)
-    
-    e_mejor, c_mejor = estado, costo
 
-    for i in xrange(maxit):
-        temperatura = calendarizador(i)
-        if temperatura < 1e-8:
-            break
+    for T in takewhile(lambda i: i > tol, calendarizador):
 
         vecino = problema.vecino_aleatorio(estado)
         costo_vecino = problema.costo(vecino)
-        error = costo - costo_vecino
+        incremento_costo = costo_vecino - costo
 
-        if error > 0 or random() < exp(error / temperatura):
+        if incremento_costo <= 0 or random() < exp(-incremento_costo / T):
             estado, costo = vecino, costo_vecino
-        
-            if c_mejor - costo > 0:
-                e_mejor, c_mejor = estado, costo
-
-    return e_mejor
-    #return estado
-
-
-def cal_expon(iteracion, K=100, delta=0.01):
-    """
-    Calendarizador exponencial
-
-    Aplica la formula temperatura = K * exp(-delta * iteracion)
-
-    @param iteracion: Un entero con la iteración (empezando por 0)
-    @param K: Valor de temperatura en la primer iteración
-    @param delta: Variación exponencial (4 veces delta es .1 el valor de K)
-
-    @return: Un flotante con la temperatura a esa iteración
-
-    """
-    return K * exp(-delta * iteracion)
+    return estado
