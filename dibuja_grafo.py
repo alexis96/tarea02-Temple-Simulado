@@ -125,8 +125,8 @@ class problema_grafica_grafo(blocales.Problema):
         # Inicializa fáctores lineales para los criterios más importantes
         # (default solo cuanta el criterio 1)
         K1 = 1.0
-        K2 = 0.0
-        K3 = 0.0
+        K2 = 1.0
+        K3 = 1.0
         K4 = 0.0
 
         # Genera un diccionario con el estado y la posición
@@ -214,8 +214,8 @@ class problema_grafica_grafo(blocales.Problema):
         @param estado_dic: Diccionario cuyas llaves son los vértices
                            del grafo y cuyos valores es una tupla con
                            la posición (x, y) de ese vértice en el
-                           dibujo.  @param min_dist: Mínima distancia
-                           aceptable en pixeles entre dos vértices en
+                           dibujo.  
+        @param min_dist: Mínima distancia aceptable en pixeles entre dos vértices en
                            el dibujo.
 
         @return: Un número.
@@ -257,10 +257,31 @@ class problema_grafica_grafo(blocales.Problema):
         #
         # ¿Que valores de diste a K1, K2 y K3 respectivamente?
         #
-        #
-        # ------ IMPLEMENTA AQUI TU CÓDIGO ------------------------------------
-        #
-        return 0
+
+        total = 0
+         
+        for v in self.vertices:
+            lista_aristas = [arista for arista in self.aristas if v in arista]
+            (x,y) = estado_dic[v]
+            
+            for a1,a2 in itertools.combinations(lista_aristas,2):
+                # obtengo las coordenadas de los vertices diferentes
+                (x1,y1) = estado_dic[a1[0]] if v in a1[1] else estado_dic[a1[1]]
+                (x2,y2) = estado_dic[a2[0]] if v in a2[1] else estado_dic[a2[1]]
+                # Saco los vectores directores
+                (v1x,v1y) = ((x1-x),(y1-y))
+                (v2x,v2y) = ((x2-x),(y2-y))
+                # obtengo sus normas
+                n1 = math.sqrt( (v1x)**2 + (v1y)**2 )
+                n2 = math.sqrt( (v2x)**2 + (v2y)**2 )
+                # obtengo el angulo
+                angulo = math.degrees(math.acos((abs((v1x * v2x) + (v1y * v2y)))/(n1*n2)))
+              
+                
+                if angulo < 30:
+                    total += 1 - (angulo/30)
+                
+        return total
 
     def criterio_propio(self, estado_dic):
         """
@@ -350,8 +371,11 @@ def main():
                         ('H', 'B'),
                         ('F', 'A'),
                         ('C', 'B'),
-                        ('H', 'F')]
+                        ('H', 'F'),
+                        ('D','F')]
     dimension = 400
+    
+    
 
     # Y vamos a hacer un dibujo del grafo sin decirle como hacer para
     # ajustarlo.
@@ -364,9 +388,17 @@ def main():
     grafo_sencillo.dibuja_grafo(estado_aleatorio, "prueba_inicial.gif")
     print("Costo del estado aleatorio: {}".format(costo_inicial))
 
+    costos = [grafo_sencillo.costo(grafo_sencillo.estado_aleatorio())
+                  for _ in range(10 * len(grafo_sencillo.estado_aleatorio()))]
+    minimo,  maximo = min(costos), max(costos)
+    T_ini = 2 * (maximo - minimo)
+    #calendarizador1 = (T_ini * math.exp(.0005 * -i) for i in range(int(1e10)))
+    calendarizador2 = (T_ini/(i*math.log10(1 + i)+1) for i in range(int(1e10)))
+    print("T_ini = {} \n".format(T_ini) )
+    
     # Ahora vamos a encontrar donde deben de estar los puntos
     t_inicial = time.time()
-    solucion = blocales.temple_simulado(grafo_sencillo)
+    solucion = blocales.temple_simulado(grafo_sencillo,calendarizador=calendarizador2,tol=.00001)
     t_final = time.time()
     costo_final = grafo_sencillo.costo(solucion)
 

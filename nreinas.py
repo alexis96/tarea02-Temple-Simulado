@@ -15,8 +15,8 @@ import blocales
 from random import shuffle
 from random import sample
 from itertools import combinations
-
-
+import time
+import math
 class ProblemaNreinas(blocales.Problema):
     """
     Las N reinas en forma de búsqueda local se inicializa como
@@ -79,7 +79,7 @@ class ProblemaNreinas(blocales.Problema):
 
 def prueba_descenso_colinas(problema=ProblemaNreinas(8), repeticiones=10):
     """ Prueba el algoritmo de descenso de colinas con n repeticiones """
-
+    print(" Prueba el algoritmo de descenso de colinas con n repeticiones")
     print("\n\n" + "intento".center(10) +
           "estado".center(60) + "costo".center(10))
     for intento in range(repeticiones):
@@ -90,38 +90,95 @@ def prueba_descenso_colinas(problema=ProblemaNreinas(8), repeticiones=10):
 
 
 def prueba_temple_simulado(problema=ProblemaNreinas(8)):
-    """ Prueba el algoritmo de temple simulado """
-
-    solucion = blocales.temple_simulado(problema)
+    
+    costos = [problema.costo(problema.estado_aleatorio())
+                  for _ in range(10 * len(problema.estado_aleatorio()))]
+    minimo,  maximo = min(costos), max(costos)
+    T_ini = 2 * (maximo - minimo)
+    calendarizador1 = (T_ini * math.exp(.0005 * -i) for i in range(int(1e10)))
+    calendarizador2 = (T_ini/(i*math.log10(1 + i)+1) for i in range(int(1e10)))
+    print("T_ini = {} \n".format(T_ini) )
+    
+    
+    """ Prueba el algoritmo de temple simulado calendarizador None  """
+    inicio_de_tiempo = time.time()
+    solucion = blocales.temple_simulado(problema,tol=.01)
     print("\n\nTemple simulado con calendarización To/(1 + i).")
     print("Costo de la solución: ", problema.costo(solucion))
     print("Y la solución es: ")
     print(solucion)
-
-
+    tiempo_final = time.time()
+    tiempo_transcurrido = tiempo_final - inicio_de_tiempo
+    print ("\nTomo {} segundos.".format(tiempo_transcurrido))
+    
+    """ Prueba el algoritmo de temple simulado calendarizador exp(-i) """
+    inicio_de_tiempo = time.time()
+    solucion = blocales.temple_simulado(problema,calendarizador=calendarizador1)
+    print("\n\nTemple simulado con calendarización To * exp.")
+    print("Costo de la solución: ", problema.costo(solucion))
+    print("Y la solución es: ")
+    print(solucion)
+    tiempo_final = time.time()
+    tiempo_transcurrido = tiempo_final - inicio_de_tiempo
+    print ("\nTomo {} segundos.".format(tiempo_transcurrido))
+    
+    """ Prueba el algoritmo de temple simulado calendarizador log( i+1 ) """
+    inicio_de_tiempo = time.time()
+    solucion = blocales.temple_simulado(problema,calendarizador=calendarizador2)
+    print("\n\nTemple simulado con calendarización To/(i*(log(1 + i)+1) .")
+    print("Costo de la solución: ", problema.costo(solucion))
+    print("Y la solución es: ")
+    print(solucion)
+    tiempo_final = time.time()
+    tiempo_transcurrido = tiempo_final - inicio_de_tiempo
+    print ("\nTomo {} segundos.".format(tiempo_transcurrido))
+    
+    
 if __name__ == "__main__":
-
-    prueba_descenso_colinas(ProblemaNreinas(32), 10)
-    prueba_temple_simulado(ProblemaNreinas(32))
-
+    """
+    inicio_de_tiempo = time.time()
+    prueba_descenso_colinas(ProblemaNreinas(128), 10)
+    tiempo_final = time.time()
+    tiempo_transcurrido = tiempo_final - inicio_de_tiempo
+    print ("\nTomo {} segundos.".format(tiempo_transcurrido))
+"""
+    
+    inicio_de_tiempo = time.time()
+    prueba_temple_simulado(ProblemaNreinas(128))
+    tiempo_final = time.time()
+    tiempo_transcurrido = tiempo_final - inicio_de_tiempo
+    print ("\nTomo {} segundos.".format(tiempo_transcurrido))
     ##########################################################################
     #                          20 PUNTOS
     ##########################################################################
     #
     # ¿Cual es el máximo número de reinas que se puede resolver en
     # tiempo aceptable con el método de 10 reinicios aleatorios?
+    #   
+    #   El maximo numero de reinas que pude resolver fue de 128 en un 
+    #   tiempo aprox de 1 hora 40 minutos. 
     #
     # ¿Que valores para ajustar el temple simulado son los que mejor
     # resultado dan? ¿Cual es el mejor ajuste para el temple simulado
     # y hasta cuantas reinas puede resolver en un tiempo aceptable?
+    #  
+    #   un tiempo aceptable fue con 300 reinas en 46 minutos 
+    #   uno seria la temperatura inicial , otro seria la tolerancia dependiendo del problema.
+    #   y la calendarizacion
     #
     # En general para obtener mejores resultados del temple simulado,
-    # es necesario utilizarprobar diferentes metdos de
-    # calendarización, prueba al menos otros dis métodos sencillos de
+    # es necesario utilizar/probar diferentes metodos de
+    # calendarización, prueba al menos otros dos métodos sencillos de
     # calendarización y ajusta los parámetros para que funcionen de la
     # mejor manera
     #
     # Escribe aqui tus conclusiones
     #
-    # ------ IMPLEMENTA AQUI TU CÓDIGO ---------------------------------------
+    # Obviamente para este problema el temple simulado fue mucho mejor los
+    # el tiempo de 128 reinas no es tan aceptable pero como fui doblando el numero
+    # con 64 dio muy poco y al doblarlo se fue hasta ese tiempo y ya no me regrese 
+    #
+    # para el temple simulado cambie la tol y bajo bastante los tiempos y me encontro
+    # la solucion con costo cero y con la calendarizacion de T0 * exp(-.0005 * i) 
+    # obtuve muy buenos resultados mejor que con los otros dos(default,logaritmicaModificada).
     #
